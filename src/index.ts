@@ -1,141 +1,168 @@
 import express, { Request, Response } from 'express';
+import Habit from './models/Habit';
 
 const app = express();
 const port = 3000; 
 
 app.use(express.json());
 
-interface Habit {
-    id: number;
-    title: string;
-    description?: string;  
-    goal?: number;       
-}
-
-let habits: Habit[] = [
-  { id: 1, title: 'Пить воду', description: 'Выпивать 2 литра воды в день', goal: 8 },
-  { id: 2, title: 'Читать', description: 'Читать 30 минут в день', goal: 1 }
-];
-
-let nextHabitId = 3; 
-
-app.get('/', (req: Request, res: Response) => {
-    res.json({
-        message: 'Habit Tracker API',
-        version: '1.0.0',
-        endpoints: [
-            'GET    /api/habits       - Получить все привычки',
-            'GET    /api/habits/:id   - Получить привычку по ID',
-            'POST   /api/habits       - Создать новую привычку',
-            'PUT    /api/habits/:id   - Обновить привычку',
-            'DELETE /api/habits/:id   - Удалить привычку'
-        ]
-    });
+app.get('/', async (req: Request, res: Response) => {
+    try {
+        res.json({
+            message: 'Habit Tracker API',
+            version: '1.0.0',
+            endpoints: [
+                'GET    /api/habits       - get habit',
+                'GET    /api/habits/:id   - get habit ID',
+                'POST   /api/habits       - greate new habit',
+                'PUT    /api/habits/:id   - update habit',
+                'DELETE /api/habits/:id   - delete habit'
+            ]
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            error: "Server Error"
+        })
+    }
 });
 
-app.get('/api/habits', (req: Request, res: Response) => {
-    res.json({
-        success: true,
-        count: habits.length,
-        data: habits
-    });
+app.get('/api/habits', async (req: Request, res: Response) => {
+    try {
+        const habits = await Habit.findAll();
+        res.json({
+            success: true,
+            count: habits.length,
+            data: habits
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            error: "Error Habits"
+        })
+    }
 });
 
-app.get('/api/habits/:id', (req: Request, res: Response) => {
-    const id = parseInt(req.params.id);
-    
-    const habit = habits.find(h => h.id === id);
-    
-    if (!habit) {
-        return res.status(404).json({
-            success: false,
-            error: 'Привычка не найдена'
-        });
-    }
-    
-    res.json({
-        success: true,
-        data: habit
-    });
-});
-
-app.post('/api/habits', (req: Request, res: Response) => {
-    if (!req.body.title || req.body.title.trim() === '') {
-        return res.status(400).json({
-            success: false,
-            error: 'Название привычки обязательно'
-        });
-    }
-    
-    const newHabit: Habit = {
-        id: nextHabitId++,
-        title: req.body.title.trim(),
-        description: req.body.description?.trim(),
-        goal: req.body.goal || 1 
-    };
-    
-    habits.push(newHabit);
-    
-    res.status(201).json({
-        success: true,
-        data: newHabit
-    });
-});
-
-app.put('/api/habits/:id', (req: Request, res: Response) => {  
-    const id = parseInt(req.params.id);
-    const habit = habits.find(h => h.id === id);
-    
-    if(!habit) {
-        return res.status(404).json({
-            success: false,
-            error: 'Id не найден'
-        });
-    }
-
-    if (!req.body.title || req.body.title.trim() === '') {
-        return res.status(400).json({
-            success: false,
-            error: 'Название привычки обязательно'
-        });
-    }
+app.get('/api/habits/:id', async (req: Request, res: Response) => {
+    try {
+        const id = parseInt(req.params.id);
         
-    const updateHabit: Habit = {
-        id: id,
-        title: req.body.title.trim(),
-        description: req.body.description?.trim(),
-        goal: req.body.goal || 1 
-    };
-
-    habits.splice(habits.indexOf(habit), 1, updateHabit)
-
-    res.status(200).json({
-        success: true,
-        data: updateHabit
-    });
+        const habit = await Habit.findByPk(id);
+        
+        if (!habit) {
+            return res.status(404).json({
+                success: false,
+                error: 'Habit not found'
+            });
+        }
+        
+        res.json({
+            success: true,
+            data: habit
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            error: "Error Habits"
+        })
+    }
 });
 
-app.delete('/api/habits/:id', (req: Request, res: Response) => {  
-    const id = parseInt(req.params.id);
-    const habit = habits.find(h => h.id === id);
-    
-    if(!habit) {
-        return res.status(404).json({
+app.post('/api/habits', async (req: Request, res: Response) => {
+    try {
+        if (!req.body.title || req.body.title.trim() === '') {
+            return res.status(400).json({
+                success: false,
+                error: 'Habit name required'
+            });
+        }
+        
+        const newHabit = await Habit.create ({
+            title: req.body.title.trim(),
+            description: req.body.description?.trim(),
+            goal: req.body.goal || 1 
+        });
+        
+        res.status(201).json({
+            success: true,
+            data: newHabit
+        });
+    } catch (error) {
+        console.error('Error create habit' , error)
+        res.status(500).json({
             success: false,
-            error: 'Id не найден'
+            error: 'failed create habit'
         });
     }
+});
 
-    habits.splice(habits.indexOf(habit), 1);
+app.put('/api/habits/:id', async (req: Request, res: Response) => {  
+    try {
+        const id = parseInt(req.params.id);
+        const habit = await Habit.findByPk(id);
+        
+        if(!habit) {
+            return res.status(404).json({
+                success: false,
+                error: 'Id not found'
+            });
+        }
 
-    res.status(200).json({
-        success: true,
-        message: 'Привычка удалена'
-    });
+        if (!req.body.title || req.body.title.trim() === '') {
+            return res.status(400).json({
+                success: false,
+                error: 'Habit title requred'
+            });
+        }
+            
+        const updateHabit = await habit.update({
+            title: req.body.title.trim(),
+            description: req.body.description?.trim(),
+            goal: req.body.goal || 1 
+        })
+
+        res.status(200).json({
+            success: true,
+            data: updateHabit
+        });
+    } catch(error) {
+        console.error('Error update habit' , error)
+        res.status(500).json({
+            success: false,
+            error: 'failed update habit'
+        });
+    }
+});
+
+app.delete('/api/habits/:id', async (req: Request, res: Response) => {  
+    try {
+        const id = parseInt(req.params.id);
+        const habit = await Habit.findByPk(id);
+        
+        if(!habit) {
+            return res.status(404).json({
+                success: false,
+                error: 'Id not found'
+            });
+        }
+
+        await habit.destroy();
+
+        res.status(200).json({
+            success: true,
+            message: 'Habit delete'
+        });
+    } catch (error) {
+        console.error('Error delete habit' , error)
+        res.status(500).json({
+            success: false,
+            error: 'failed delete habit'
+        });
+    }
 });
 
 app.listen(port, () => {
-    console.log(`Сервер запущен на http://localhost:${port}`);
+    console.log(`Server running http://localhost:${port}`);
 });
 
 
