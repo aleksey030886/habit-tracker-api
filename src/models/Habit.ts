@@ -1,16 +1,14 @@
 import sequelize from "../config/database";
 import { DataTypes, Model } from "sequelize";
 
-class Habit extends Model {
+class Habit extends Model {}
 
-}
-
-Habit.init (
+Habit.init(
   {
     id: {
-        type: DataTypes.INTEGER,
-        primaryKey: true,
-        autoIncrement: true,
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
     },
     title: {
       type: DataTypes.STRING,
@@ -20,41 +18,17 @@ Habit.init (
       type: DataTypes.STRING,
     },
     goal: {
-        type: DataTypes.INTEGER,
+      type: DataTypes.INTEGER,
     },
   },
   {
     sequelize,
-    modelName: 'Habit',
-    tableName: 'habits',
+    modelName: "Habit",
+    tableName: "habits",
     timestamps: true,
   },
-)
+);
 
-console.log(Habit === sequelize.models.Habit); 
+console.log(Habit === sequelize.models.Habit);
 
 export default Habit;
-
-// const Habit = sequelize.define(
-//   'Habit',
-  // {
-  //   id: {
-  //       type: DataTypes.INTEGER,
-  //       primaryKey: true,
-  //       autoIncrement: true,
-  //   },
-  //   title: {
-  //     type: DataTypes.STRING,
-  //     allowNull: false,
-  //   },
-  //   description: {
-  //     type: DataTypes.STRING,
-  //   },
-  //   goal: {
-  //       type: DataTypes.INTEGER,
-  //   },
-  // },
-  // {
-    
-//   },
-// );

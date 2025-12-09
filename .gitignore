@@ -1,6 +1,6 @@
-node_modules
+node_modules/
 
-dist
+dist/
 
 .env
 
@@ -10,4 +10,8 @@ tsconfig.json
 
 .DS_Store
 
-test-db.ts
+src/test-db.ts
+
+src/init-database.ts
+
+.prettierrc
