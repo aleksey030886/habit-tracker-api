@@ -13,7 +13,7 @@ REST API для трекинга привычек на Node.js + TypeScript. П�
 ## 🚀 Быстрый старт
 
 ### 1. Клонирование и установка
-git clone https://github.com/ваш-username/habit-tracker-api.git
+git clone https://github.com/aleksey030886/habit-tracker-api
 cd habit-tracker-api
 npm install
 
