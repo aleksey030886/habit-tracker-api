@@ -67,6 +67,7 @@ class HabitController {
         title: req.body.title.trim(),
         description: req.body.description?.trim(),
         goal: req.body.goal || 1,
+        userId: req.body.userId,
       });
 
       res.status(201).json({

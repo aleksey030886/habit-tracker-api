@@ -1,55 +1,53 @@
 import sequelize from "../config/database";
 import { DataTypes, Model } from "sequelize";
 
-interface IHabit {
+interface IUser {
   id?: number;
-  title: string;
-  description?: string;
-  goal?: number;
-  userId: number;
+  email: string;
+  password: string;
+  name: string;
   createdAt?: Date;
   updatedAt?: Date;
 }
 
-class Habit extends Model<IHabit> implements IHabit {
+class User extends Model<IUser> implements IUser {
   declare id: number;
-  declare title: string;
-  declare description?: string;
-  declare goal: number;
-  declare userId: number;
+  declare email: string;
+  declare password: string;
+  declare name: string;
   declare createdAt: Date;
   declare updatedAt: Date;
 }
 
-Habit.init(
+User.init(
   {
     id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true,
     },
-    title: {
+    email: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
+      validate: {
+        isEmail: true,
+      },
+    },
+    password: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    description: {
+    name: {
       type: DataTypes.STRING,
-    },
-    goal: {
-      type: DataTypes.INTEGER,
-    },
-    userId: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      defaultValue: 1,
     },
   },
   {
     sequelize,
-    modelName: "Habit",
-    tableName: "habits",
+    modelName: "User",
+    tableName: "users",
     timestamps: true,
   },
 );
 
-export default Habit;
+export default User;

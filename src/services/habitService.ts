@@ -13,11 +13,13 @@ class HabitService {
     title: string;
     description?: string;
     goal?: number;
+    userId: number
   }) {
     return await Habit.create({
       title: habitData.title.trim(),
       description: habitData.description?.trim(),
       goal: habitData.goal || 1,
+      userId: habitData.userId,
     });
   }
 
