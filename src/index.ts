@@ -15,15 +15,6 @@ app.use("/api/habits", habitRoutes);
 
 app.use("/api/auth", authRoutes);
 
-app.get("/api/test/users", async (req, res) => {
-  try {
-    const users = await User.findAll();
-    res.json(users);
-  } catch (error) {
-    res.status(500).json('error: message' );
-  }
-});
-
 app.listen(port, () => {
   console.log(`Server running http://localhost:${port}`);
 });
